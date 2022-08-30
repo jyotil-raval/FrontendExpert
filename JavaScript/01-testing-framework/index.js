@@ -44,7 +44,7 @@ class ExpectFunctions {
 
   toBeType(type) {
     if (typeof this.actual !== type) {
-      throw `expected ${this.stringifiedActual} to be type ${type} but got ${typeof this.actual}`;
+      throw `expected ${this.stringifiedActual} to be of type ${type} but got ${typeof this.actual}`;
     }
   }
 }
