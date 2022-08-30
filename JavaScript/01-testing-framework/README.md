@@ -54,6 +54,24 @@ As a test suite and its test cases are executed, they should print the following
 'expected {actual} to be of type {type} but got {typeOfActual}';
 ```
 
+When a check fails, the following things should happen:
+
+1. The relevant expect function should throw the appropriate errorMessage
+2. The relevant it function should throw an arbitrary error, and its execution should
+   stop.
+3. The relevant describe function should print the failure string with
+   console.error (all other strings should be printed with console.log ), and its execution should stop.
+
+For the sake of simplicity:
+• All output strings should be in lowercase letters, with no punctuation whatsoever.
+• No modifications should be made to testSuiteName and testCaseName values
+(they shouldn't be lowercased).
+• When actual and expected values are printed within error messages, they should be stringified with JSON.stringify()
+
+_Note that this question's tests naturally check that console.log and console.error are correctly called; this means that debugging your solution with console.log will unavoidably make your solution fail some tests._
+
+---
+
 # SOLUTION
 
 ```javascript
