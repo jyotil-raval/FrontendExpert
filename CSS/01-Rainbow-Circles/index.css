@@ -1,0 +1,28 @@
+#outer {
+  box-sizing: border-box;
+  background: #ffa500;
+  border: 25px solid #ff0000;
+  border-radius: 50%;
+  width: 300px;
+  height: 300px;
+}
+
+#middle {
+  box-sizing: border-box;
+  background: #008000;
+  border: 25px solid #ffff00;
+  border-radius: 50%;
+  width: 200px;
+  height: 200px;
+  margin: 25px;
+}
+
+#inner {
+  box-sizing: border-box;
+  background: #800080;
+  border: 25px solid #0000ff;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  margin: 25px;
+}
