@@ -1,133 +1,53 @@
 # Event Target
 
-Implement the following three functions of a basic JavaScript testing framework:
+_Tag_: **JavaScript**
 
-1. **describe:**
+Implement an `EventTarget` class (similar to the EventTarget interface of the DOM), which keeps track of event listeners and dispatches events.
 
-   This function defines a test suite of related test cases. It takes in a string testSuiteName and a callback func, which makes one or more calls to it.
+Your `EventTarget` class should have the following three methods:
 
-2. **it:**
+1. `addEventListener` - This function takes in two arguments: the name of an event as a string and a callback function, to be called when the event is dispatched to the target.
 
-   This function defines a single test case in a test suite and is called within a describe's callback func. It takes in a string testCaseName and its own callback func, which makes one or more calls to expect.
+   For example, `target.addEventListener('click', onClick)` should make it such that the `onClick` callback is called when the 'click' event is dispatched to the `target`.
 
-3. **expect:**
+   A target should be able to have multiple event listeners for the same event (for example, `onClick1` and `onClick2`, both attached to the `'click'` event). However, adding the same exact event listener twice (with the same event and the same callback) should have no effect.
 
-   This function defines a single check in a test case and is called within an it's callback func. It takes in an arbitrary parameter actual and returns an object with the following three functions that are used to compare actual to other values:
+2. `removeEventListener` - This function takes in the same arguments as `addEventListener` and removes the relevant event listener.
 
-   1. _expect(actual).toExist():_
+   For example, `target.removeEventListener('click', onClick)` should undo the effects of the `addEventListener` call in the bullet point above.
 
-      This function checks that actual is neither null nor undefined.
+   If there's no current event listener for the passed-in arguments, `removeEventListener` should have no effect. Also, if two different callbacks have been added for the same `'click'` event (e.g., `onClick1` and `onClick2`), removing one shouldn't remove the other.
 
-   2. _expect(actual).toBe (expected):_
+3. `dispatchEvent` - This function takes in the name of an event as a string. If there are no event listeners for that event, nothing should happen. Otherwise, event listeners that do exist for that event should have their callback functions invoked.
 
-      This function checks that actual is strictly equal to expected.
+   For example, given the event listener added in the first bullet point and assuming it hadn't been removed, `dispatchEvent('click')` would call `onClick`.
 
-   3. _expect(actual).toBeType(type):_
+   Events can be dispatched multiple times, and each time, every associated callback should be invoked.
 
-      This function checks that actual is of the type type , which can be any string returned by the typeof operator.
+Note that different event targets should be completely isolated from one another. In other words, if we had two event targets with the same event listener, dispatching the appropriate event to one target shouldn't trigger the other target.
 
-As a test suite and its test cases are executed, they should print the following strings:
+### Sample Usage
 
 ```javascript
-// When a test suite begins:
-'beginning test suite {testSuiteName}';
-
-// When a test suite successfully completes:
-'successfully completed test suite {testSuiteName}';
-
-// When a test case begins:
-'beginning test case {testCaseName}';
-
-// When a test case successfully completes:
-'successfully completed test case {testCaseName}';
-
-// When a test suite fails (because a check in one of its test cases fails):
-'failed running test suite {testSuiteName} on test case {testCaseName} with error message {errorMessage}';
-
-// When `expect(actual).toExist() ' fails, 'errorMessage' should be:
-'expected value to exist but got {actual}';
-
-// When `expect(actual).toBe (expected)' fails, 'errorMessage
-'expected {actual} to be {expected}';
-
-// When `expect(actual).toBeType (type)' fails, 'errorMessage' should be:
-'expected {actual} to be of type {type} but got {typeOfActual}';
+const target = new EventTarget();
+const logHello = () => console.log('hello');
+const logWorld = () => console.log('world');
+target.addEventListener('hello', logHello);
+target.addEventListener('world', logWorld);
+target.dispatchEvent('hello');
+target.dispatchEvent('world');
+target.removeEventListener('hello', logHello);
+target.dispatchEvent('hello');
+target.dispatchEvent('world');
 ```
 
-When a check fails, the following things should happen:
-
-1. The relevant expect function should throw the appropriate errorMessage
-2. The relevant it function should throw an arbitrary error, and its execution should
-   stop.
-3. The relevant describe function should print the failure string with
-   console.error (all other strings should be printed with console.log ), and its execution should stop.
-
-For the sake of simplicity:
-• All output strings should be in lowercase letters, with no punctuation whatsoever.
-• No modifications should be made to testSuiteName and testCaseName values
-(they shouldn't be lowercased).
-• When actual and expected values are printed within error messages, they should be stringified with JSON.stringify()
-
-_Note that this question's tests naturally check that console.log and console.error are correctly called; this means that debugging your solution with console.log will unavoidably make your solution fail some tests._
-
----
-
-# SOLUTION
+### Sample Output
 
 ```javascript
-function describe(testSuiteName, func) {
-  console.log(`beginning test suite ${testSuiteName}`);
-
-  try {
-    func();
-    console.log(`successfully completed test suite ${testSuiteName}`);
-  } catch (error) {
-    const { testCaseName, errorMessage } = error;
-    console.error(`failed running test suite ${testSuiteName} on ` + `test case ${testCaseName} with error message ${errorMessage}`);
-  }
-}
-
-function it(testCaseName, func) {
-  console.log(`beginning test case ${testCaseName}`);
-
-  try {
-    func();
-    console.log(`successfully completed test case ${testCaseName}`);
-  } catch (errorMessage) {
-    throw { testCaseName, errorMessage };
-  }
-}
-
-function expect(actual) {
-  return new ExpectFunctions(actual);
-}
-
-class ExpectFunctions {
-  constructor(actual) {
-    this.actual = actual;
-    this.stringifiedActual = JSON.stringify(actual);
-  }
-  toExist() {
-    if (this.actual == null) {
-      throw `expected value to exist but got ${this.stringifiedActual}`;
-    }
-  }
-
-  toBe(expected) {
-    if (this.actual !== expected) {
-      throw `expected ${this.stringifiedActual} to be ${JSON.stringify(expected)}`;
-    }
-  }
-
-  toBeType(type) {
-    if (typeof this.actual !== type) {
-      throw `expected ${this.stringifiedActual} to be of type ${type} but got ${typeof this.actual}`;
-    }
-  }
-}
-
-// Do not edit the lines below.
-exports.describe = describe;
-exports.it = it;
-exports.expect = expect;
+// Console logs:
+hello; // From the first 'hello' dispatch
+world; // From the first 'world' dispatch
+world; // From the second 'world' dispatch
+// The second 'hello' dispatch does nothing because
+// the event listener was removed above it
 ```
